@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Punarphone</title>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.383.0?deps=react@18.3.1",
+    "recharts": "https://esm.sh/recharts@2.12.7?deps=react@18.3.1,react-dom@18.3.1"
+  }
+}
+</script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-type="module" data-presets="react">
+import React, { useState, useMemo } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  LayoutDashboard, FolderTree, PackageCheck, UserCheck, Users, ClipboardList,
+  CreditCard, Ticket, Image as ImageIcon, Percent, RotateCcw, Truck, BarChart3,
+  Bell, Settings, ShieldCheck, Star, MapPin, Smartphone, Search, ArrowUpDown,
+  Check, X, ChevronLeft, TrendingUp, IndianRupee, ShoppingBag, Store, Lock, Plus, Trash2
+} from "lucide-react";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, PieChart, Pie, Cell
+} from "recharts";
+
+const C = {
+  bg: "#EEF0E9",
+  paper: "#F7F8F3",
+  surface: "#FFFFFF",
+  ink: "#1C1F1A",
+  sub: "#6C7268",
+  line: "#DADCD1",
+  teal: "#175A4C",
+  tealSoft: "#E3EFE9",
+  coral: "#D8552B",
+  coralSoft: "#FBE9E0",
+  amber: "#B9791A",
+  amberSoft: "#FBEEDA",
+};
+
+const fontImport = `
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+`;
+
+const inr = (n) => "\u20B9" + n.toLocaleString("en-IN");
+
+const SELLERS = {
+  s1: {
+    id: "s1", name: "Rakesh Verma", verified: true, location: "Bhopal, MP",
+    memberSince: "March 2022", totalListings: 84, sold: 61, rating: 4.7,
+    reviews: 52, responseRate: "96%", responseTime: "under 1 hour",
+    mobile: "9876543210", password: "seller123",
+  },
+  s2: {
+    id: "s2", name: "Sana Traders", verified: true, location: "Indore, MP",
+    memberSince: "July 2023", totalListings: 40, sold: 28, rating: 4.5,
+    reviews: 21, responseRate: "88%", responseTime: "a few hours",
+    mobile: "9123456780", password: "seller123",
+  },
+  s3: {
+    id: "s3", name: "Amit Gupta", verified: false, location: "Narmadapuram, MP",
+    memberSince: "January 2024", totalListings: 6, sold: 2, rating: 4.0,
+    reviews: 2, responseRate: "70%", responseTime: "about a day",
+    mobile: "9988776655", password: "seller123",
+  },
+};
+
+const PHONES = [
+  { id: 1, name: "iPhone 12", storage: "128GB", condition: "Like new", price: 24999, mrp: 45900, sellerId: "s1", posted: "2 days ago" },
+  { id: 2, name: "Samsung Galaxy S21", storage: "256GB", condition: "Good", price: 17999, mrp: 34999, sellerId: "s2", posted: "5 days ago" },
+  { id: 3, name: "OnePlus 9R", storage: "128GB", condition: "Fair", price: 10999, mrp: 26999, sellerId: "s3", posted: "1 day ago" },
+  { id: 4, name: "iPhone SE (2022)", storage: "64GB", condition: "Good", price: 13499, mrp: 24999, sellerId: "s1", posted: "3 days ago" },
+  { id: 5, name: "Redmi Note 11 Pro", storage: "128GB", condition: "Like new", price: 8999, mrp: 18999, sellerId: "s2", posted: "6 days ago" },
+  { id: 6, name: "Samsung Galaxy M32", storage: "128GB", condition: "Good", price: 7499, mrp: 15499, sellerId: "s1", posted: "4 days ago" },
+];
+
+function Header({ view, setView }) {
+  const tabs = [
+    { id: "market", label: "Browse phones", icon: Smartphone },
+    { id: "seller", label: "Seller profile", icon: Store },
+  ];
+  return (
+    <div style={{ borderBottom: `1px solid ${C.line}`, background: C.paper }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "18px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+          <span style={{ fontFamily: "Fraunces, serif", fontWeight: 700, fontSize: 24, color: C.ink }}>Punarphone</span>
+          <span style={{ fontSize: 13, color: C.sub }}>Bharosa. Kimat. Dono.</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 4, background: C.surface, padding: 4, borderRadius: 10, border: `1px solid ${C.line}` }}>
+            {tabs.map((t) => {
+              const Icon = t.icon;
+              const active = view === t.id;
+              return (
+                <button key={t.id} onClick={() => setView(t.id)} style={{
+                  display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 7,
+                  border: "none", cursor: "pointer", fontSize: 13.5, fontWeight: 600, fontFamily: "Inter, sans-serif",
+                  background: active ? C.teal : "transparent", color: active ? "#fff" : C.sub,
+                }}>
+                  <Icon size={15} /> {t.label}
+                </button>
+              );
+            })}
+          </div>
+          <button onClick={() => setView("sellerPanel")} style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 8,
+            border: "none", cursor: "pointer", fontSize: 13.5, fontWeight: 600, fontFamily: "Inter, sans-serif",
+            background: C.coral, color: "#fff",
+          }}>
+            <UserCheck size={15} /> Login / Sign up
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ConditionBadge({ condition }) {
+  const map = {
+    "Like new": { bg: C.tealSoft, fg: C.teal },
+    "Good": { bg: C.amberSoft, fg: C.amber },
+    "Fair": { bg: C.coralSoft, fg: C.coral },
+  };
+  const s = map[condition] || map.Good;
+  return (
+    <span style={{ background: s.bg, color: s.fg, fontSize: 11.5, fontWeight: 600, padding: "3px 9px", borderRadius: 20 }}>
+      {condition}
+    </span>
+  );
+}
+
+function PhoneCard({ phone, onOpenSeller }) {
+  const seller = SELLERS[phone.sellerId];
+  const savings = Math.round(100 - (phone.price / phone.mrp) * 100);
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 12, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: 130, background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Smartphone size={40} color={C.sub} strokeWidth={1.3} />
+      </div>
+      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15, color: C.ink }}>{phone.name}</div>
+            <div style={{ fontSize: 12.5, color: C.sub }}>{phone.storage}</div>
+          </div>
+          <ConditionBadge condition={phone.condition} />
+        </div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 2 }}>
+          <span style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 22, color: C.coral }}>{inr(phone.price)}</span>
+          <span style={{ fontSize: 12.5, color: C.sub, textDecoration: "line-through" }}>{inr(phone.mrp)}</span>
+          <span style={{ fontSize: 11.5, color: C.teal, fontWeight: 600 }}>{savings}% off</span>
+        </div>
+        <button onClick={() => onOpenSeller(seller.id)} style={{
+          display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none",
+          cursor: "pointer", padding: 0, marginTop: 6, fontFamily: "Inter, sans-serif",
+        }}>
+          <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.tealSoft, color: C.teal, fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {seller.name[0]}
+          </div>
+          <span style={{ fontSize: 12.5, color: C.ink, fontWeight: 500 }}>{seller.name}</span>
+          {seller.verified && <ShieldCheck size={13} color={C.teal} />}
+          <span style={{ fontSize: 12, color: C.sub, display: "flex", alignItems: "center", gap: 2 }}>
+            <Star size={11} fill={C.amber} color={C.amber} /> {seller.rating}
+          </span>
+        </button>
+        <div style={{ fontSize: 11.5, color: C.sub, marginTop: "auto", paddingTop: 6 }}>Posted {phone.posted}</div>
+      </div>
+    </div>
+  );
+}
+
+function MarketView({ onOpenSeller }) {
+  const [sort, setSort] = useState("recent");
+  const [maxPrice, setMaxPrice] = useState(50000);
+  const [query, setQuery] = useState("");
+
+  const list = useMemo(() => {
+    let r = PHONES.filter((p) => p.price <= maxPrice && p.name.toLowerCase().includes(query.toLowerCase()));
+    if (sort === "low") r = [...r].sort((a, b) => a.price - b.price);
+    if (sort === "high") r = [...r].sort((a, b) => b.price - a.price);
+    return r;
+  }, [sort, maxPrice, query]);
+
+  return (
+    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px" }}>
+      <h1 style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 26, color: C.ink, margin: "0 0 6px" }}>
+        Second-hand mobiles, checked and priced upfront
+      </h1>
+      <p style={{ color: C.sub, fontSize: 14, margin: "0 0 20px" }}>Every listing shows the price, the condition and the seller's track record — no surprises.</p>
+
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.surface, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 12px", flex: "1 1 220px" }}>
+          <Search size={15} color={C.sub} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search phone, e.g. iPhone 12"
+            style={{ border: "none", outline: "none", fontSize: 13.5, width: "100%", fontFamily: "Inter, sans-serif" }} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.surface, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 12px" }}>
+          <ArrowUpDown size={15} color={C.sub} />
+          <select value={sort} onChange={(e) => setSort(e.target.value)} style={{ border: "none", outline: "none", fontSize: 13.5, fontFamily: "Inter, sans-serif", background: "transparent" }}>
+            <option value="recent">Newest first</option>
+            <option value="low">Price: low to high</option>
+            <option value="high">Price: high to low</option>
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.surface, border: `1px solid ${C.line}`, borderRadius: 8, padding: "8px 12px" }}>
+          <span style={{ fontSize: 12.5, color: C.sub, whiteSpace: "nowrap" }}>Up to {inr(maxPrice)}</span>
+          <input type="range" min={5000} max={50000} step={1000} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} />
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 16 }}>
+        {list.map((p) => <PhoneCard key={p.id} phone={p} onOpenSeller={onOpenSeller} />)}
+      </div>
+      {list.length === 0 && <p style={{ color: C.sub, fontSize: 13.5 }}>No phones match that search. Try widening the price range.</p>}
+    </div>
+  );
+}
+
+function StatBox({ label, value }) {
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 10, padding: "14px 16px", textAlign: "center" }}>
+      <div style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 20, color: C.ink }}>{value}</div>
+      <div style={{ fontSize: 11.5, color: C.sub, marginTop: 2 }}>{label}</div>
+    </div>
+  );
+}
+
+function SellerView({ sellerId, setView }) {
+  const seller = SELLERS[sellerId] || SELLERS.s1;
+  const listings = PHONES.filter((p) => p.sellerId === seller.id);
+  return (
+    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 24px" }}>
+      <button onClick={() => setView("market")} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", color: C.sub, fontSize: 13, marginBottom: 18, padding: 0, fontFamily: "Inter, sans-serif" }}>
+        <ChevronLeft size={15} /> Back to listings
+      </button>
+      <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 14, padding: 24, display: "flex", gap: 20, flexWrap: "wrap", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ width: 68, height: 68, borderRadius: "50%", background: C.tealSoft, color: C.teal, fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 26, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          {seller.name[0]}
+        </div>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 21, color: C.ink }}>{seller.name}</span>
+            {seller.verified && (
+              <span style={{ display: "flex", alignItems: "center", gap: 4, background: C.tealSoft, color: C.teal, fontSize: 11.5, fontWeight: 600, padding: "3px 9px", borderRadius: 20 }}>
+                <ShieldCheck size={12} /> Verified seller
+              </span>
+            )}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.sub, fontSize: 13, marginTop: 4 }}>
+            <MapPin size={13} /> {seller.location} <span>&middot;</span> Member since {seller.memberSince}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
+            <Star size={14} fill={C.amber} color={C.amber} />
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: C.ink }}>{seller.rating}</span>
+            <span style={{ fontSize: 12.5, color: C.sub }}>({seller.reviews} reviews)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12, marginBottom: 24 }}>
+        <StatBox label="Total listings" value={seller.totalListings} />
+        <StatBox label="Devices sold" value={seller.sold} />
+        <StatBox label="Response rate" value={seller.responseRate} />
+        <StatBox label="Responds in" value={seller.responseTime} />
+        <StatBox label="Active listings" value={listings.length} />
+      </div>
+
+      <h2 style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 18, color: C.ink, marginBottom: 12 }}>Active listings from {seller.name}</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 16 }}>
+        {listings.map((p) => <PhoneCard key={p.id} phone={p} onOpenSeller={() => {}} />)}
+      </div>
+    </div>
+  );
+}
+
+const CATEGORIES = [
+  { id: 1, name: "Apple", items: 142, status: "Active" },
+  { id: 2, name: "Samsung", items: 210, status: "Active" },
+  { id: 3, name: "OnePlus", items: 88, status: "Active" },
+  { id: 4, name: "Xiaomi / Redmi", items: 176, status: "Active" },
+  { id: 5, name: "Feature phones", items: 12, status: "Hidden" },
+];
+const PENDING_PRODUCTS = [
+  { id: 101, name: "iPhone 13", seller: "Rakesh Verma", price: 34999 },
+  { id: 102, name: "Vivo V25", seller: "Sana Traders", price: 12999 },
+  { id: 103, name: "Realme 9 Pro", seller: "Amit Gupta", price: 9999 },
+];
+const PENDING_SELLERS = [
+  { id: 201, name: "Deepak Mobiles", city: "Jabalpur", listings: 5 },
+  { id: 202, name: "Priya Refurb Store", city: "Bhopal", listings: 3 },
+];
+const CUSTOMERS = [
+  { id: 1, name: "Anjali Sharma", city: "Indore", orders: 3 },
+  { id: 2, name: "Rohit Malviya", city: "Bhopal", orders: 1 },
+  { id: 3, name: "Farhan Khan", city: "Narmadapuram", orders: 5 },
+];
+const ORDERS = [
+  { id: "ORD-1042", customer: "Anjali Sharma", item: "iPhone 12", amount: 24999, status: "Delivered" },
+  { id: "ORD-1043", customer: "Rohit Malviya", item: "Redmi Note 11 Pro", amount: 8999, status: "Shipped" },
+  { id: "ORD-1044", customer: "Farhan Khan", item: "Galaxy S21", amount: 17999, status: "Processing" },
+];
+const PAYMENTS = [
+  { id: "PAY-501", order: "ORD-1042", method: "UPI", amount: 24999, status: "Paid" },
+  { id: "PAY-502", order: "ORD-1043", method: "Card", amount: 8999, status: "Paid" },
+  { id: "PAY-503", order: "ORD-1044", method: "COD", amount: 17999, status: "Pending" },
+];
+const COUPONS = [
+  { code: "PUNAR100", discount: "\u20B9100 off", expiry: "30 Sep 2026", status: "Active" },
+  { code: "FIRSTBUY", discount: "5% off", expiry: "15 Sep 2026", status: "Active" },
+  { code: "OLD200", discount: "\u20B9200 off", expiry: "01 Jul 2026", status: "Expired" },
+];
+const RETURNS = [
+  { id: "RET-11", order: "ORD-1039", reason: "Battery drains fast", status: "Under review" },
+  { id: "RET-12", order: "ORD-1031", reason: "Screen scratch not disclosed", status: "Refund approved" },
+];
+const NOTIFICATIONS = [
+  "3 new products are waiting for approval",
+  "2 sellers are waiting for verification",
+  "A return request needs a decision: RET-11",
+  "Coupon OLD200 has expired",
+];
+const SALES_TREND = [
+  { month: "Apr", sales: 180000 }, { month: "May", sales: 210000 }, { month: "Jun", sales: 195000 },
+  { month: "Jul", sales: 260000 }, { month: "Aug", sales: 300000 },
+];
+const CATEGORY_SPLIT = [
+  { name: "Apple", value: 142 }, { name: "Samsung", value: 210 }, { name: "OnePlus", value: 88 }, { name: "Xiaomi", value: 176 },
+];
+const PIE_COLORS = [C.teal, C.coral, C.amber, "#7F77DD"];
+
+function Th({ children }) {
+  return <th style={{ textAlign: "left", fontSize: 11.5, color: C.sub, fontWeight: 600, padding: "8px 10px", borderBottom: `1px solid ${C.line}` }}>{children}</th>;
+}
+function Td({ children }) {
+  return <td style={{ fontSize: 13, color: C.ink, padding: "10px 10px", borderBottom: `1px solid ${C.line}` }}>{children}</td>;
+}
+function Pill({ text, tone = "teal" }) {
+  const map = { teal: [C.tealSoft, C.teal], coral: [C.coralSoft, C.coral], amber: [C.amberSoft, C.amber] };
+  const [bg, fg] = map[tone] || map.teal;
+  return <span style={{ background: bg, color: fg, fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20 }}>{text}</span>;
+}
+function SmallBtn({ children, onClick, tone = "line" }) {
+  const styles = tone === "teal"
+    ? { background: C.teal, color: "#fff", border: "none" }
+    : tone === "coral"
+    ? { background: "transparent", color: C.coral, border: `1px solid ${C.coral}` }
+    : { background: "transparent", color: C.ink, border: `1px solid ${C.line}` };
+  return (
+    <button onClick={onClick} style={{ ...styles, fontSize: 12, fontWeight: 600, padding: "5px 10px", borderRadius: 6, cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+      {children}
+    </button>
+  );
+}
+
+function AdminSection({ active, ...props }) {
+  const [products, setProducts] = useState(PENDING_PRODUCTS);
+  const [sellers, setSellers] = useState(PENDING_SELLERS);
+  const [banners, setBanners] = useState([
+    { id: 1, title: "Festival sale - up to 40% off", active: true },
+    { id: 2, title: "Sell your old phone in 10 minutes", active: true },
+    { id: 3, title: "Diwali cashback offer", active: false },
+  ]);
+
+  if (active === "dashboard") {
+    return (
+      <div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 24 }}>
+          <StatBox label="Total sales" value={inr(1145000)} />
+          <StatBox label="Total orders" value="312" />
+          <StatBox label="Total customers" value="204" />
+          <StatBox label="Total sellers" value="47" />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, alignItems: "stretch" }}>
+          <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, marginBottom: 10 }}>Sales trend</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={SALES_TREND}>
+                <CartesianGrid stroke={C.line} vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.sub }} axisLine={{ stroke: C.line }} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: C.sub }} axisLine={false} tickLine={false} width={40} />
+                <Tooltip formatter={(v) => inr(v)} />
+                <Line type="monotone" dataKey="sales" stroke={C.teal} strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, marginBottom: 10 }}>Listings by brand</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={CATEGORY_SPLIT} dataKey="value" nameKey="name" innerRadius={40} outerRadius={70}>
+                  {CATEGORY_SPLIT.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (active === "categories") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Category</Th><Th>Listings</Th><Th>Status</Th></tr></thead>
+      <tbody>
+        {CATEGORIES.map((c) => (
+          <tr key={c.id}><Td>{c.name}</Td><Td>{c.items}</Td><Td><Pill text={c.status} tone={c.status === "Active" ? "teal" : "amber"} /></Td></tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (active === "productApproval") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Product</Th><Th>Seller</Th><Th>Price</Th><Th>Action</Th></tr></thead>
+      <tbody>
+        {products.map((p) => (
+          <tr key={p.id}>
+            <Td>{p.name}</Td><Td>{p.seller}</Td><Td>{inr(p.price)}</Td>
+            <Td>
+              <div style={{ display: "flex", gap: 6 }}>
+                <SmallBtn tone="teal" onClick={() => setProducts(products.filter((x) => x.id !== p.id))}>Approve</SmallBtn>
+                <SmallBtn tone="coral" onClick={() => setProducts(products.filter((x) => x.id !== p.id))}>Reject</SmallBtn>
+              </div>
+            </Td>
+          </tr>
+        ))}
+        {products.length === 0 && <tr><Td>No products waiting for approval.</Td><Td></Td><Td></Td><Td></Td></tr>}
+      </tbody>
+    </table>
+  );
+
+  if (active === "sellerApproval") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Seller</Th><Th>City</Th><Th>Listings submitted</Th><Th>Action</Th></tr></thead>
+      <tbody>
+        {sellers.map((s) => (
+          <tr key={s.id}>
+            <Td>{s.name}</Td><Td>{s.city}</Td><Td>{s.listings}</Td>
+            <Td>
+              <div style={{ display: "flex", gap: 6 }}>
+                <SmallBtn tone="teal" onClick={() => setSellers(sellers.filter((x) => x.id !== s.id))}>Approve</SmallBtn>
+                <SmallBtn tone="coral" onClick={() => setSellers(sellers.filter((x) => x.id !== s.id))}>Reject</SmallBtn>
+              </div>
+            </Td>
+          </tr>
+        ))}
+        {sellers.length === 0 && <tr><Td>No sellers waiting for verification.</Td><Td></Td><Td></Td><Td></Td></tr>}
+      </tbody>
+    </table>
+  );
+
+  if (active === "customers") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Customer</Th><Th>City</Th><Th>Orders placed</Th></tr></thead>
+      <tbody>{CUSTOMERS.map((c) => <tr key={c.id}><Td>{c.name}</Td><Td>{c.city}</Td><Td>{c.orders}</Td></tr>)}</tbody>
+    </table>
+  );
+
+  if (active === "orders") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Order</Th><Th>Customer</Th><Th>Item</Th><Th>Amount</Th><Th>Status</Th></tr></thead>
+      <tbody>
+        {ORDERS.map((o) => (
+          <tr key={o.id}><Td>{o.id}</Td><Td>{o.customer}</Td><Td>{o.item}</Td><Td>{inr(o.amount)}</Td>
+            <Td><Pill text={o.status} tone={o.status === "Delivered" ? "teal" : o.status === "Shipped" ? "amber" : "coral"} /></Td></tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (active === "payments") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Payment</Th><Th>Order</Th><Th>Method</Th><Th>Amount</Th><Th>Status</Th></tr></thead>
+      <tbody>
+        {PAYMENTS.map((p) => (
+          <tr key={p.id}><Td>{p.id}</Td><Td>{p.order}</Td><Td>{p.method}</Td><Td>{inr(p.amount)}</Td>
+            <Td><Pill text={p.status} tone={p.status === "Paid" ? "teal" : "amber"} /></Td></tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (active === "coupons") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Code</Th><Th>Discount</Th><Th>Expires</Th><Th>Status</Th></tr></thead>
+      <tbody>
+        {COUPONS.map((c) => (
+          <tr key={c.code}><Td>{c.code}</Td><Td>{c.discount}</Td><Td>{c.expiry}</Td>
+            <Td><Pill text={c.status} tone={c.status === "Active" ? "teal" : "coral"} /></Td></tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (active === "banners") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {banners.map((b) => (
+        <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: C.surface, border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>
+          <span style={{ fontSize: 13.5, color: C.ink }}>{b.title}</span>
+          <SmallBtn tone={b.active ? "teal" : "line"} onClick={() => setBanners(banners.map((x) => x.id === b.id ? { ...x, active: !x.active } : x))}>
+            {b.active ? "Active" : "Turn on"}
+          </SmallBtn>
+        </div>
+      ))}
+    </div>
+  );
+
+  if (active === "commission") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 380 }}>
+      {["Apple", "Samsung", "OnePlus", "Xiaomi / Redmi"].map((cat) => (
+        <div key={cat} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 13.5, color: C.ink }}>{cat}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <input defaultValue={8} style={{ width: 50, padding: "6px 8px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 }} />
+            <span style={{ fontSize: 13, color: C.sub }}>%</span>
+          </div>
+        </div>
+      ))}
+      <SmallBtn tone="teal">Save commission rates</SmallBtn>
+    </div>
+  );
+
+  if (active === "returns") return (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead><tr><Th>Request</Th><Th>Order</Th><Th>Reason</Th><Th>Status</Th></tr></thead>
+      <tbody>
+        {RETURNS.map((r) => (
+          <tr key={r.id}><Td>{r.id}</Td><Td>{r.order}</Td><Td>{r.reason}</Td>
+            <Td><Pill text={r.status} tone={r.status.includes("approved") ? "teal" : "amber"} /></Td></tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  if (active === "shipping") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, maxWidth: 380 }}>
+      <label style={{ fontSize: 13, color: C.ink }}>Base shipping charge
+        <input defaultValue="149" style={{ display: "block", marginTop: 4, width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 }} />
+      </label>
+      <label style={{ fontSize: 13, color: C.ink }}>Free shipping above order value
+        <input defaultValue="15000" style={{ display: "block", marginTop: 4, width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 }} />
+      </label>
+      <label style={{ fontSize: 13, color: C.ink }}>Delivery zones covered
+        <input defaultValue="All India" style={{ display: "block", marginTop: 4, width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 }} />
+      </label>
+      <SmallBtn tone="teal">Save shipping settings</SmallBtn>
+    </div>
+  );
+
+  if (active === "reports") return (
+    <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16 }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: C.ink, marginBottom: 10 }}>Monthly sales (\u20B9)</div>
+      <ResponsiveContainer width="100%" height={240}>
+        <BarChart data={SALES_TREND}>
+          <CartesianGrid stroke={C.line} vertical={false} />
+          <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.sub }} axisLine={{ stroke: C.line }} tickLine={false} />
+          <YAxis tick={{ fontSize: 11, fill: C.sub }} axisLine={false} tickLine={false} width={50} />
+          <Tooltip formatter={(v) => inr(v)} />
+          <Bar dataKey="sales" fill={C.teal} radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+
+  if (active === "notifications") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {NOTIFICATIONS.map((n, i) => (
+        <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: C.surface, border: `1px solid ${C.line}`, borderRadius: 10, padding: "12px 14px" }}>
+          <Bell size={15} color={C.amber} style={{ flexShrink: 0, marginTop: 1 }} />
+          <span style={{ fontSize: 13.5, color: C.ink }}>{n}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  if (active === "settings") return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, maxWidth: 380 }}>
+      <label style={{ fontSize: 13, color: C.ink }}>Website name
+        <input defaultValue="Punarphone" style={{ display: "block", marginTop: 4, width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 }} />
+      </label>
+      <label style={{ fontSize: 13, color: C.ink }}>Support email
+        <input defaultValue="support@punarphone.in" style={{ display: "block", marginTop: 4, width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 }} />
+      </label>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 13, color: C.ink }}>Maintenance mode</span>
+        <SmallBtn>Off</SmallBtn>
+      </div>
+      <SmallBtn tone="teal">Save settings</SmallBtn>
+    </div>
+  );
+
+  if (active === "credentials") return <AdminCredentialsForm {...props} />;
+
+  return null;
+}
+
+function AdminCredentialsForm({ adminId, setAdminId, adminPassword, setAdminPassword }) {
+  const [newId, setNewId] = useState(adminId);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  const save = () => {
+    setSaved(false);
+    if (newId.trim() === "") { setError("User ID khali nahi ho sakta"); return; }
+    const changingPw = currentPw || newPw || confirmPw;
+    if (changingPw) {
+      if (currentPw !== adminPassword) { setError("Current password galat hai"); return; }
+      if (newPw.length < 4) { setError("Naya password kam se kam 4 characters ka ho"); return; }
+      if (newPw !== confirmPw) { setError("Naya password aur confirm password match nahi kar rahe"); return; }
+    }
+    setError("");
+    setAdminId(newId.trim());
+    if (changingPw) setAdminPassword(newPw);
+    setCurrentPw(""); setNewPw(""); setConfirmPw("");
+    setSaved(true);
+  };
+
+  const inputStyle = { display: "block", marginTop: 4, width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13, boxSizing: "border-box" };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, maxWidth: 380 }}>
+      <label style={{ fontSize: 13, color: C.ink }}>Admin user ID
+        <input value={newId} onChange={(e) => setNewId(e.target.value)} style={inputStyle} />
+      </label>
+      <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 12 }}>
+        <p style={{ fontSize: 12.5, color: C.sub, margin: "0 0 10px" }}>Password badalne ke liye neeche bharein, warna khali chhod dein.</p>
+        <label style={{ fontSize: 13, color: C.ink }}>Current password
+          <input type="password" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} style={inputStyle} />
+        </label>
+        <label style={{ fontSize: 13, color: C.ink, display: "block", marginTop: 12 }}>New password
+          <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} style={inputStyle} />
+        </label>
+        <label style={{ fontSize: 13, color: C.ink, display: "block", marginTop: 12 }}>Confirm new password
+          <input type="password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} style={inputStyle} />
+        </label>
+      </div>
+      {error && <p style={{ fontSize: 12, color: C.coral, margin: 0 }}>{error}</p>}
+      {saved && <p style={{ fontSize: 12, color: C.teal, margin: 0 }}>Login details update ho gaye.</p>}
+      <SmallBtn tone="teal" onClick={save}>Save login details</SmallBtn>
+    </div>
+  );
+}
+
+function AdminView({ adminId, setAdminId, adminPassword, setAdminPassword }) {
+  const [active, setActive] = useState("dashboard");
+  const items = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "categories", label: "Category management", icon: FolderTree },
+    { id: "productApproval", label: "Product approval", icon: PackageCheck },
+    { id: "sellerApproval", label: "Seller approval", icon: UserCheck },
+    { id: "customers", label: "Customer management", icon: Users },
+    { id: "orders", label: "Order management", icon: ClipboardList },
+    { id: "payments", label: "Payment management", icon: CreditCard },
+    { id: "coupons", label: "Coupon management", icon: Ticket },
+    { id: "banners", label: "Banner and offer management", icon: ImageIcon },
+    { id: "commission", label: "Commission management", icon: Percent },
+    { id: "returns", label: "Returns and refunds", icon: RotateCcw },
+    { id: "shipping", label: "Shipping settings", icon: Truck },
+    { id: "reports", label: "Reports and analytics", icon: BarChart3 },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "settings", label: "Website settings", icon: Settings },
+    { id: "credentials", label: "Admin login details", icon: Lock },
+  ];
+  const noCardPad = ["reports", "dashboard", "banners", "commission", "shipping", "notifications", "settings", "credentials"];
+  const currentLabel = items.find((i) => i.id === active)?.label;
+  return (
+    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 24px", display: "flex", gap: 20 }}>
+      <div style={{ width: 220, flexShrink: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+        {items.map((it) => {
+          const Icon = it.icon;
+          const on = active === it.id;
+          return (
+            <button key={it.id} onClick={() => setActive(it.id)} style={{
+              display: "flex", alignItems: "center", gap: 9, padding: "8px 10px", borderRadius: 7, border: "none",
+              cursor: "pointer", textAlign: "left", background: on ? C.tealSoft : "transparent",
+              color: on ? C.teal : C.ink, fontSize: 12.8, fontWeight: on ? 600 : 500, fontFamily: "Inter, sans-serif",
+            }}>
+              <Icon size={15} style={{ flexShrink: 0 }} /> {it.label}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h2 style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 19, color: C.ink, margin: "4px 0 16px" }}>{currentLabel}</h2>
+        <div style={{ background: C.surface, borderRadius: 12, border: noCardPad.includes(active) ? "none" : `1px solid ${C.line}`, padding: noCardPad.includes(active) ? 0 : 4 }}>
+          <AdminSection active={active} adminId={adminId} setAdminId={setAdminId} adminPassword={adminPassword} setAdminPassword={setAdminPassword} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Footer({ onStaffClick }) {
+  return (
+    <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 40 }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <span style={{ fontSize: 12, color: C.sub }}>&copy; 2026 Punarphone</span>
+        <button onClick={onStaffClick} style={{
+          display: "flex", alignItems: "center", gap: 5, background: "none", border: "none",
+          cursor: "pointer", color: C.sub, fontSize: 11.5, padding: 0, fontFamily: "Inter, sans-serif",
+        }}>
+          <Lock size={12} /> Staff login
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AdminLogin({ adminId, adminPassword, onSuccess, onCancel }) {
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (userId.trim() === "" || password.trim() === "") {
+      setError("User ID aur password daaliye");
+      return;
+    }
+    if (userId !== adminId || password !== adminPassword) {
+      setError("Galat User ID ya password, dobara try karein");
+      return;
+    }
+    onSuccess();
+  };
+
+  const inputStyle = { width: "100%", padding: "9px 12px", border: `1px solid ${error ? C.coral : C.line}`, borderRadius: 7, fontSize: 13.5, boxSizing: "border-box" };
+
+  return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <form onSubmit={submit} style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 14, padding: 28, width: "100%", maxWidth: 340 }}>
+        <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.tealSoft, color: C.teal, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+          <Lock size={18} />
+        </div>
+        <h2 style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 18, color: C.ink, margin: "0 0 4px" }}>Staff login</h2>
+        <p style={{ fontSize: 12.5, color: C.sub, margin: "0 0 16px" }}>Yeh section sirf admin team ke liye hai.</p>
+        <input
+          value={userId}
+          onChange={(e) => { setUserId(e.target.value); setError(""); }}
+          placeholder="User ID"
+          style={{ ...inputStyle, marginBottom: 10 }}
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => { setPassword(e.target.value); setError(""); }}
+          placeholder="Password"
+          style={inputStyle}
+        />
+        {error && <p style={{ fontSize: 12, color: C.coral, margin: "6px 0 0" }}>{error}</p>}
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <SmallBtn tone="teal">Login</SmallBtn>
+          <SmallBtn onClick={onCancel}>Cancel</SmallBtn>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function SellerAuth({ extraSellers, addSeller, onSuccess, onCancel }) {
+  const [tab, setTab] = useState("login");
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const inputStyle = { width: "100%", padding: "9px 12px", border: `1px solid ${error ? C.coral : C.line}`, borderRadius: 7, fontSize: 13.5, boxSizing: "border-box" };
+  const allSellers = () => [...Object.values(SELLERS), ...extraSellers];
+
+  const submitLogin = (e) => {
+    e.preventDefault();
+    if (mobile.trim() === "" || password.trim() === "") {
+      setError("Mobile number aur password daaliye");
+      return;
+    }
+    const match = allSellers().find((s) => s.mobile === mobile.trim() && s.password === password);
+    if (!match) {
+      setError("Galat mobile number ya password");
+      return;
+    }
+    onSuccess(match.id);
+  };
+
+  const submitSignup = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !mobile.trim() || !password.trim()) {
+      setError("Naam, mobile number aur password bharna zaroori hai");
+      return;
+    }
+    if (!/^\d{10}$/.test(mobile.trim())) {
+      setError("10 digit ka valid mobile number daalein");
+      return;
+    }
+    if (password.length < 4) {
+      setError("Password kam se kam 4 characters ka ho");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Password aur confirm password match nahi kar rahe");
+      return;
+    }
+    if (allSellers().some((s) => s.mobile === mobile.trim())) {
+      setError("Yeh mobile number pehle se registered hai, login karein");
+      return;
+    }
+    const newSeller = {
+      id: `s${Date.now()}`, name: name.trim(), mobile: mobile.trim(), password,
+      verified: false, location: "Not added yet", memberSince: "September 2026",
+      totalListings: 0, sold: 0, rating: 0, reviews: 0, responseRate: "-", responseTime: "-",
+    };
+    addSeller(newSeller);
+    onSuccess(newSeller.id);
+  };
+
+  const switchTab = (t) => { setTab(t); setError(""); setPassword(""); setConfirmPassword(""); };
+
+  return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 14, padding: 28, width: "100%", maxWidth: 360 }}>
+        <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.tealSoft, color: C.teal, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+          <Store size={18} />
+        </div>
+        <div style={{ display: "flex", gap: 4, background: C.bg, padding: 4, borderRadius: 8, marginBottom: 18 }}>
+          <button onClick={() => switchTab("login")} style={{ flex: 1, padding: "7px 0", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === "login" ? C.teal : "transparent", color: tab === "login" ? "#fff" : C.sub, fontFamily: "Inter, sans-serif" }}>Login</button>
+          <button onClick={() => switchTab("signup")} style={{ flex: 1, padding: "7px 0", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === "signup" ? C.teal : "transparent", color: tab === "signup" ? "#fff" : C.sub, fontFamily: "Inter, sans-serif" }}>Sign up</button>
+        </div>
+
+        {tab === "login" ? (
+          <form onSubmit={submitLogin}>
+            <h2 style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 18, color: C.ink, margin: "0 0 4px" }}>Seller login</h2>
+            <p style={{ fontSize: 12.5, color: C.sub, margin: "0 0 16px" }}>Apni listings aur profile manage karne ke liye login karein.</p>
+            <input value={mobile} onChange={(e) => { setMobile(e.target.value); setError(""); }} placeholder="Mobile number" style={{ ...inputStyle, marginBottom: 10 }} />
+            <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} placeholder="Password" style={inputStyle} />
+            {error && <p style={{ fontSize: 12, color: C.coral, margin: "6px 0 0" }}>{error}</p>}
+            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+              <SmallBtn tone="teal">Login</SmallBtn>
+              <SmallBtn onClick={onCancel}>Cancel</SmallBtn>
+            </div>
+            <p style={{ fontSize: 11, color: C.sub, marginTop: 14 }}>Demo mobile: 9876543210 &middot; Password: seller123</p>
+          </form>
+        ) : (
+          <form onSubmit={submitSignup}>
+            <h2 style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 18, color: C.ink, margin: "0 0 4px" }}>Seller sign up</h2>
+            <p style={{ fontSize: 12.5, color: C.sub, margin: "0 0 16px" }}>Mobile number se naya seller account banayein.</p>
+            <input value={name} onChange={(e) => { setName(e.target.value); setError(""); }} placeholder="Full name" style={{ ...inputStyle, marginBottom: 10 }} />
+            <input value={mobile} onChange={(e) => { setMobile(e.target.value); setError(""); }} placeholder="Mobile number" style={{ ...inputStyle, marginBottom: 10 }} />
+            <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} placeholder="Password" style={{ ...inputStyle, marginBottom: 10 }} />
+            <input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError(""); }} placeholder="Confirm password" style={inputStyle} />
+            {error && <p style={{ fontSize: 12, color: C.coral, margin: "6px 0 0" }}>{error}</p>}
+            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+              <SmallBtn tone="teal">Create account</SmallBtn>
+              <SmallBtn onClick={onCancel}>Cancel</SmallBtn>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SellerDashboard({ sellerId, extraSellers, onExit }) {
+  const seller = SELLERS[sellerId] || extraSellers.find((s) => s.id === sellerId);
+  const [listings, setListings] = useState(PHONES.filter((p) => p.sellerId === sellerId));
+  const [form, setForm] = useState({ name: "", storage: "", condition: "Good", price: "", mrp: "" });
+  const [error, setError] = useState("");
+
+  const addListing = () => {
+    if (!form.name.trim() || !form.price || !form.mrp) {
+      setError("Naam, price aur MRP bharna zaroori hai");
+      return;
+    }
+    setError("");
+    setListings([...listings, {
+      id: Date.now(), name: form.name, storage: form.storage || "N/A", condition: form.condition,
+      price: Number(form.price), mrp: Number(form.mrp), sellerId, posted: "Just now",
+    }]);
+    setForm({ name: "", storage: "", condition: "Good", price: "", mrp: "" });
+  };
+
+  const removeListing = (id) => setListings(listings.filter((l) => l.id !== id));
+
+  const inputStyle = { padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 13 };
+
+  return (
+    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "24px 24px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", background: C.tealSoft, color: C.teal, fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {seller.name[0]}
+          </div>
+          <div>
+            <div style={{ fontFamily: "Fraunces, serif", fontWeight: 600, fontSize: 18, color: C.ink }}>{seller.name}</div>
+            <div style={{ fontSize: 12, color: C.sub }}>{seller.location}</div>
+          </div>
+        </div>
+        <SmallBtn onClick={onExit}>Log out</SmallBtn>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12, marginBottom: 24 }}>
+        <StatBox label="Rating" value={seller.rating} />
+        <StatBox label="Devices sold" value={seller.sold} />
+        <StatBox label="Response rate" value={seller.responseRate} />
+        <StatBox label="Active listings" value={listings.length} />
+      </div>
+
+      <div style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 12, padding: 16, marginBottom: 24 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, marginBottom: 12 }}>Naya phone list karein</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10, marginBottom: 10 }}>
+          <input placeholder="Phone name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+          <input placeholder="Storage e.g. 128GB" value={form.storage} onChange={(e) => setForm({ ...form, storage: e.target.value })} style={inputStyle} />
+          <select value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} style={inputStyle}>
+            <option>Like new</option><option>Good</option><option>Fair</option>
+          </select>
+          <input placeholder="Selling price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} style={inputStyle} />
+          <input placeholder="Original MRP" value={form.mrp} onChange={(e) => setForm({ ...form, mrp: e.target.value })} style={inputStyle} />
+        </div>
+        {error && <p style={{ fontSize: 12, color: C.coral, margin: "0 0 8px" }}>{error}</p>}
+        <SmallBtn tone="teal" onClick={addListing}><Plus size={12} style={{ verticalAlign: -1 }} /> Add listing</SmallBtn>
+      </div>
+
+      <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, marginBottom: 12 }}>Meri listings</div>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead><tr><Th>Phone</Th><Th>Storage</Th><Th>Condition</Th><Th>Price</Th><Th>Posted</Th><Th></Th></tr></thead>
+        <tbody>
+          {listings.map((l) => (
+            <tr key={l.id}>
+              <Td>{l.name}</Td><Td>{l.storage}</Td><Td><ConditionBadge condition={l.condition} /></Td>
+              <Td>{inr(l.price)}</Td><Td>{l.posted}</Td>
+              <Td><SmallBtn tone="coral" onClick={() => removeListing(l.id)}><Trash2 size={12} style={{ verticalAlign: -1 }} /> Remove</SmallBtn></Td>
+            </tr>
+          ))}
+          {listings.length === 0 && <tr><Td>Koi listing nahi hai. Upar se ek jodiye.</Td><Td></Td><Td></Td><Td></Td><Td></Td><Td></Td></tr>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default function App() {
+  const [view, setView] = useState("market");
+  const [sellerId, setSellerId] = useState("s1");
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [adminId, setAdminId] = useState("admin");
+  const [adminPassword, setAdminPassword] = useState("admin123");
+  const [loggedInSellerId, setLoggedInSellerId] = useState(null);
+  const [extraSellers, setExtraSellers] = useState([]);
+
+  const openSeller = (id) => { setSellerId(id); setView("seller"); };
+  const exitAdmin = () => { setAdminUnlocked(false); setView("market"); };
+  const exitSellerPanel = () => { setLoggedInSellerId(null); setView("market"); };
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", fontFamily: "Inter, sans-serif" }}>
+      <style>{fontImport}</style>
+
+      {view !== "admin" && view !== "sellerPanel" && <Header view={view} setView={setView} />}
+
+      {view === "market" && <MarketView onOpenSeller={openSeller} />}
+      {view === "seller" && <SellerView sellerId={sellerId} setView={setView} />}
+
+      {view === "sellerPanel" && !loggedInSellerId && (
+        <SellerAuth
+          extraSellers={extraSellers}
+          addSeller={(s) => setExtraSellers([...extraSellers, s])}
+          onSuccess={(id) => setLoggedInSellerId(id)}
+          onCancel={() => setView("market")}
+        />
+      )}
+      {view === "sellerPanel" && loggedInSellerId && (
+        <SellerDashboard sellerId={loggedInSellerId} extraSellers={extraSellers} onExit={exitSellerPanel} />
+      )}
+
+      {view === "admin" && !adminUnlocked && (
+        <AdminLogin adminId={adminId} adminPassword={adminPassword} onSuccess={() => setAdminUnlocked(true)} onCancel={() => setView("market")} />
+      )}
+      {view === "admin" && adminUnlocked && (
+        <div>
+          <div style={{ borderBottom: `1px solid ${C.line}`, background: C.paper }}>
+            <div style={{ maxWidth: 1080, margin: "0 auto", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontFamily: "Fraunces, serif", fontWeight: 700, fontSize: 20, color: C.ink }}>Punarphone admin</span>
+              <SmallBtn onClick={exitAdmin}>Exit to website</SmallBtn>
+            </div>
+          </div>
+          <AdminView adminId={adminId} setAdminId={setAdminId} adminPassword={adminPassword} setAdminPassword={setAdminPassword} />
+        </div>
+      )}
+
+      {view !== "admin" && view !== "sellerPanel" && <Footer onStaffClick={() => setView("admin")} />}
+    </div>
+  );
+}
+
+const root = createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
